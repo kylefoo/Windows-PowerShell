@@ -1,0 +1,23 @@
+#these are the required Windows Domain Information for a target machine to join into
+param(
+  [String]$Domain
+ ,[String]$Password
+ ,[String]$User
+)
+
+#it is expected that the target machine has a back interface with fixed IP for communication
+$CCPNew=[System.Net.Dns]::GetHostbyAddress("192.168.40.123")
+$CCPName=$CCPNew.HostName
+
+invoke-command -computername $CCPName -scriptblock {param($Domain, $Password, $User)
+$domain="$Domain"
+$password = "$Password" | ConvertTo-SecureString -asPlainText -Force
+$username = "$domain\$User"
+$credential = New-Object System.Management.Automation.PSCredential($username, $password)
+Add-Computer -DomainName $domain -Credential $credential
+
+#to skip from rebooting the machine, run the group policy update
+Gpupdate.exe /force
+exit
+} -ArgumentList $Domain, $Password, $User
+exit
