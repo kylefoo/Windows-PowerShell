@@ -1,0 +1,23 @@
+#these inputs are required to change the host's name on the respective config files
+param(
+[String]$CCPName
+,[String]$SQLName
+)
+
+$SQLOld=[System.Net.Dns]::GetHostbyAddress("192.168.40.121")
+$SQLOld=$SQLOld.HostName
+
+$CCPOld=[System.Net.Dns]::GetHostbyAddress("192.168.40.123")
+$CCPOld=$CCPOld.HostName
+
+invoke-command -computername $CCPOld -scriptblock {param($CCPName, $SQLName)
+#content of config files will be change based on a already built template
+get-content C:\CiscoServicePortal\etc\settingsTemp.conf | foreach-object {$_ -replace "IAMCCP","$CCPName"} | foreach-object {$_ -replace "IAMSQL","$SQLName"} | set-content C:\CiscoServicePortal\etc\settings.conf
+
+get-content C:\CiscoServicePortal\jboss-4.2.3.GA\server\RequestCenter\deploy\requestcenter-dsTemp.xml | foreach-object {$_ -replace "IAMCCP","$CCPName"} | foreach-object {$_ -replace "IAMSQL","$SQLName"} | set-content C:\CiscoServicePortal\jboss-4.2.3.GA\server\RequestCenter\deploy\requestcenter-ds.xml
+
+get-content C:\CiscoServicePortal\jboss-4.2.3.GA\server\ServiceLink\deploy\requestcenter-dsTemp.xml | foreach-object {$_ -replace "IAMCCP","$CCPName"} | foreach-object {$_ -replace "IAMSQL","$SQLName"} | set-content C:\CiscoServicePortal\jboss-4.2.3.GA\server\ServiceLink\deploy\requestcenter-ds.xml
+
+get-content C:\CiscoServicePortal\jboss-4.2.3.GA\server\RequestCenter\deploy\RequestCenter.ear\config\newscaleTemp.properties | foreach-object {$_ -replace "IAMCCP","$CCPName"} | foreach-object {$_ -replace "IAMSQL","$SQLName"} | set-content C:\CiscoServicePortal\jboss-4.2.3.GA\server\RequestCenter\deploy\RequestCenter.ear\config\newscale.properties
+exit} -ArgumentList $CCPName, $SQLName
+exit
