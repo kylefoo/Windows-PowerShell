@@ -1,0 +1,27 @@
+#this script will remove the target machine from the domain 
+param(
+  [String]$Domain
+ ,[String]$Password
+ ,[String]$User
+)
+
+#it is expected that the target machine has a back interface with fixed IP
+$CCPNew=[System.Net.Dns]::GetHostbyAddress("192.168.40.122")
+$CCPName=$CCPNew.HostName
+
+#this function will apply the scripts onto the target machine
+invoke-command -computername $CCPName -scriptblock {param($Domain, $Password, $User)
+$domain="$Domain"
+$password = "$Password" | ConvertTo-SecureString -asPlainText -Force
+$username = "$domain\$User"
+$credential = New-Object System.Management.Automation.PSCredential($username, $password)
+Remove-Computer -Credential $credential -Force
+
+#join to workgroup
+Add-Computer -Workgroup QSOLV
+
+#update Group Policy to prevent from rebooting
+Gpupdate.exe /force
+exit
+} -ArgumentList $Domain, $Password, $User
+exit
