@@ -1,0 +1,10 @@
+####Allowing Remote Script Execution####
+#run on target machine to enable remote execution
+Enable-PSRemoting -Force
+Set-Item wsman:\localhost\client\trustedhosts *
+WinRM quickconfig
+Restart-Service WinRM
+
+#run on target machine
+#use target machine's name to check availability for remoting execution
+Test-WsMan COMPUTERNAME
