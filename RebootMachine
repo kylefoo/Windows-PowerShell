@@ -1,0 +1,6 @@
+#this is to get the hostname by a known IP
+$SQLOld=[System.Net.Dns]::GetHostbyAddress("192.168.40.121")
+$SQLOld=$SQLOld.HostName
+
+#below script will shutdown a machine with a certain delay
+shutdown /r /m $SQLOld /t 60 /f
