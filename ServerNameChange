@@ -1,0 +1,16 @@
+#this is an input from the user for desired server name
+param(
+[String]$CCPName
+)
+
+#first get host's original computer name using IP address
+$CCPOld=[System.Net.Dns]::GetHostbyAddress("192.168.40.123")
+$CCPOld=$CCPOld.HostName
+
+invoke-command -computername $CCPOld -scriptblock {param($CCPName)
+$PCInfo=get-wmiobject -class win32_ComputerSystem
+$PCInfo.rename("$CCPName")
+exit
+
+} -ArgumentList $CCPName
+exit
