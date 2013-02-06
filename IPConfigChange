@@ -1,0 +1,23 @@
+#required user's input for the new IP configurations of a machine
+param(
+  [String]$CCPIP
+ ,[String]$SubnetMask
+ ,[String]$Gateway
+ ,[String]$DNS1
+)
+
+#it is expected that the machine have a back interface with fixed IP address
+$CCPNew=[System.Net.Dns]::GetHostbyAddress("192.168.40.123")
+$CCPName=$CCPNew.HostName
+
+invoke-command -computername $CCPName -scriptblock {param($CCPIP, $SubnetMask, $Gateway, $DNS1, $CCPName)
+#here will get the respective network interface based on its index number
+$nic=Get-WMIObject Win32_NetworkAdapterConfiguration -ComputerName $CCPName |where {$_.index -match "7"}
+
+$nic.EnableStatic("$CCPIP","$SubnetMask")
+$nic.SetGateways("$Gateway")
+$nic.SetDNSServerSearchOrder("$DNS1")
+exit
+
+} -ArgumentList $CCPIP, $SubnetMask, $Gateway, $DNS1, $CCPName
+exit
