@@ -1,4 +1,4 @@
-#this is an input from the user for desired server name
+#Desired Server Name Served as input while communication is IP based
 param(
 [String]$CCPName
 )
