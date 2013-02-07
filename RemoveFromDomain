@@ -9,7 +9,7 @@ param(
 $CCPNew=[System.Net.Dns]::GetHostbyAddress("192.168.40.122")
 $CCPName=$CCPNew.HostName
 
-#this function will apply the scripts onto the target machine
+#this function will apply the nested scripts onto the target machine
 invoke-command -computername $CCPName -scriptblock {param($Domain, $Password, $User)
 $domain="$Domain"
 $password = "$Password" | ConvertTo-SecureString -asPlainText -Force
