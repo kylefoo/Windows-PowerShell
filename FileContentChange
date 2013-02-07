@@ -1,12 +1,10 @@
-#these inputs are required to change the host's name on the respective config files
+#Assuming two values are to be changed in the files with a known path 
 param(
 [String]$CCPName
 ,[String]$SQLName
 )
 
-$SQLOld=[System.Net.Dns]::GetHostbyAddress("192.168.40.121")
-$SQLOld=$SQLOld.HostName
-
+#First it is expected that the target machines name is retrieved
 $CCPOld=[System.Net.Dns]::GetHostbyAddress("192.168.40.123")
 $CCPOld=$CCPOld.HostName
 
@@ -18,6 +16,5 @@ get-content C:\CiscoServicePortal\jboss-4.2.3.GA\server\RequestCenter\deploy\req
 
 get-content C:\CiscoServicePortal\jboss-4.2.3.GA\server\ServiceLink\deploy\requestcenter-dsTemp.xml | foreach-object {$_ -replace "IAMCCP","$CCPName"} | foreach-object {$_ -replace "IAMSQL","$SQLName"} | set-content C:\CiscoServicePortal\jboss-4.2.3.GA\server\ServiceLink\deploy\requestcenter-ds.xml
 
-get-content C:\CiscoServicePortal\jboss-4.2.3.GA\server\RequestCenter\deploy\RequestCenter.ear\config\newscaleTemp.properties | foreach-object {$_ -replace "IAMCCP","$CCPName"} | foreach-object {$_ -replace "IAMSQL","$SQLName"} | set-content C:\CiscoServicePortal\jboss-4.2.3.GA\server\RequestCenter\deploy\RequestCenter.ear\config\newscale.properties
 exit} -ArgumentList $CCPName, $SQLName
 exit
