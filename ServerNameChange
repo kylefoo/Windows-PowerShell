@@ -7,6 +7,7 @@ param(
 $CCPOld=[System.Net.Dns]::GetHostbyAddress("192.168.40.123")
 $CCPOld=$CCPOld.HostName
 
+#remote execution
 invoke-command -computername $CCPOld -scriptblock {param($CCPName)
 $PCInfo=get-wmiobject -class win32_ComputerSystem
 $PCInfo.rename("$CCPName")
