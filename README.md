@@ -6,7 +6,7 @@ i.e Changing PC name, Modifying configuration files, Rebooting machines, IP conf
 Requirements include a fixed IP address on the target machine connected to remote machine, and Windows Powershell 2.0 installed on the remote machine.
 
 To be able to remotely execute a script onto the target machine, certain action has to be done on the target machine for enabling the remote execution.
-Please start with RemotingExecution script for the rest to work perfectly.
+Please start with RemoteExecutionEnabling script for the rest to work perfectly.
  
 References:
 http://www.howtogeek.com/117192/how-to-run-powershell-commands-on-remote-computers/
