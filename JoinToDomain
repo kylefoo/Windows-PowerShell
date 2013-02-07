@@ -9,6 +9,7 @@ param(
 $CCPNew=[System.Net.Dns]::GetHostbyAddress("192.168.40.123")
 $CCPName=$CCPNew.HostName
 
+#remote execution
 invoke-command -computername $CCPName -scriptblock {param($Domain, $Password, $User)
 $domain="$Domain"
 $password = "$Password" | ConvertTo-SecureString -asPlainText -Force
