@@ -1,0 +1,36 @@
+param(
+[String]$OUName,
+[String]$UserFName,
+[String]$UserLName,
+[String]$UserEmail,
+[String]$UserRole,
+[String]$UserLoginName,
+[String]$UserPass
+)
+
+
+$UserPassSec = ConvertTo-SecureString -String $UserPass -AsPlainText -Force;
+import-module ActiveDirectory
+
+#Assumed OU already created in AD, here's to get path
+$ou_top = Get-ADOrganizationalUnit -Filter {name -eq "OU"};
+$ou_org = Get-ADOrganizationalUnit -Filter {name -eq "SubOU"} -SearchBase $($ou_top.DistinguishedName);
+
+#Get OU Path
+$ou_sub = Get-ADOrganizationalUnit -Filter {Name -eq $OUName} -SearchBase $($ou_org.DistinguishedName);
+
+$domain = Get-ADDomain;
+
+#Assumed below OU already created in AD, here's to get path
+$ou_top_groups=Get-ADOrganizationalUnit -Filter {name -eq "Groups"} -SearchBase $($ou_top.DistinguishedName);
+$ou_users=Get-ADOrganizationalUnit -Filter {name -eq "Users"} -SearchBase $($ou_top.DistinguishedName);
+
+#Add User
+Write-Host "Creating User in $($ou_users.DistinguishedName) `n";
+New-ADUser -SamAccountName "$UserLoginName" -GivenName $UserFName -Surname $UserLName -DisplayName "$UserFName $UserLName" -Path $($ou_users.DistinguishedName) -AccountPassword $UserPassSec -Name "$UserFName $UserLName" -Enabled:$true -Email "$UserEmail" -Department "$OUName" -UserPrincipalName "$UserLoginName@$($domain.DNSRoot)";  
+
+#Add Member to Group
+Write-Host "Adding Member $UserFName $UserLName to the Group $OUName - $UserRole  in $($ou_top_groups.DistinguishedName) `n";
+$group_name = "$UserRole";
+$group = Get-ADGroup -Filter {Name -eq $group_name} -SearchBase $($ou_top_groups.DistinguishedName);
+Add-ADGroupMember $group -Members (Get-ADUser -Filter {(GivenName -eq $UserFName) -and (Surname -eq $UserLName)});
