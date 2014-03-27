@@ -1,0 +1,13 @@
+param(
+[String]$OUName,
+[String]$OUdesc
+)
+
+import-module ActiveDirectory
+
+$ou_top = Get-ADOrganizationalUnit -Filter {name -eq "OU"};           #get upper level of OU path
+$ou_org = Get-ADOrganizationalUnit -Filter {name -eq "SubOU"} -SearchBase $($ou_top.DistinguishedName);  #get lower level of OU
+
+#Add OU 
+NEW-ADOrganizationalUnit -Name $OUName -Path $($ou_org.DistinguishedName) -Description $OUdesc;   #add ou into SubOU directory
+$ou_sub = Get-ADOrganizationalUnit -Filter {Name -eq $OUName} -SearchBase $($ou_org.DistinguishedName);  #ou path under SubOU
