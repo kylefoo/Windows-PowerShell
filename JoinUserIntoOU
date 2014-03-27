@@ -1,0 +1,33 @@
+param(
+[String]$OUName,
+[String]$UserRole,
+[String]$UserEmail
+)
+
+import-module ActiveDirectory
+
+#Assumed below OU already created, here's to get path
+$ou_top = Get-ADOrganizationalUnit -Filter {name -eq "OU"};
+$ou_org = Get-ADOrganizationalUnit -Filter {name -eq "SubOU"} -SearchBase $($ou_top.DistinguishedName);
+
+#Find a already created OU, here's to get path
+$ou_sub = Get-ADOrganizationalUnit -Filter {Name -eq $OUName} -SearchBase $($ou_org.DistinguishedName);
+
+#Assumed below OU already created, here's to get path
+$ou_top_groups=Get-ADOrganizationalUnit -Filter {name -eq "Groups"} -SearchBase $($ou_top.DistinguishedName);
+$ou_users=Get-ADOrganizationalUnit -Filter {name -eq "Users"} -SearchBase $($ou_top.DistinguishedName);
+
+#Assumed the email is the truth of source for User identity, here's to find user
+$User = Get-ADUser -Filter {mail -eq $UserEmail} -SearchBase $($ou_users.DistinguishedName);
+
+#Join user to OU
+Set-ADUser $User -Organization "$OUName";
+
+#Add Member to Security Group
+if ($UserRole) {
+Write-Host "Adding Member to the Group $UserRole in $($ou_top_groups.DistinguishedName) `n";
+$group_name = "$UserRole";
+$group = Get-ADGroup -Filter {Name -eq $group_name} -SearchBase $($ou_top_groups.DistinguishedName);
+Add-ADGroupMember $group -Members (Get-ADUser -Filter {(mail -eq $UserEmail)});
+}
+
