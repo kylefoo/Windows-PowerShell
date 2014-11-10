@@ -7,6 +7,10 @@ param(
 [String]$UserLName
 )
 
+$ErrorActionPreference = "Stop";
+$decode = [System.Convert]::FromBase64String($UserPass);
+$encode = [System.Text.Encoding]::UTF8.GetString($decode);
+$UserPassSec = ConvertTo-SecureString -String $encode -AsPlainText -Force;
 import-module ActiveDirectory
 
 #Here's to get path for the OU already created
@@ -28,4 +32,4 @@ Rename-ADObject -identity $user -NewName "$UserFName $UserLName";
 Write-Host "Adding Member $UserFName $UserLName to the Group $OUName - $UserRole in $($ou_top_groups.DistinguishedName) `n";
 $group_name = "$UserRole";
 $group = Get-ADGroup -Filter {Name -eq $group_name} -SearchBase $($ou_top_groups.DistinguishedName);
-Add-ADGroupMember $group -Members (Get-ADUser -Filter {mail -eq $UserEmail});
+Add-ADGroupMember $group -Members (Get-ADUser -Filter {mail -eq $UserEmail}) -Title $null;
